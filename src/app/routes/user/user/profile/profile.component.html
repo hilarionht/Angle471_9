@@ -1,0 +1,93 @@
+<div class="row animated fadeIn">
+
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Perfil del usuario</h4>
+                <h6 class="card-subtitle"> nombre usuario </h6>
+
+                <form ngNativeValidate [formGroup]="profileForm" (ngSubmit)="save(profileForm.value)" class="form p-t-20">
+                    <input type="hidden" name="id" formControlName="id" />
+                    <div class="form-group">
+                        <label for="username">Nombre de usuario</label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class="fa fa-user"></i></div>
+                            </div> <input name="nombre" type="text" class="form-control" formControlName="username" placeholder="Nombre de usuario" required>
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Correo de usuario</label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">@</span>
+                            </div>
+                            <input class="form-control" type="text" formControlName="email" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1" name="" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Rol</label>
+                        <ngx-select [allowClear]="true" [items]="rols" optionValueField="id" optionTextField="name" (removed)="removed($event)" placeholder="Seleccion Rol del usuario" name="roleId" id="roleId" formControlName="roleId">
+                        </ngx-select>
+                    </div>
+                    <button type="submit" class="btn btn-success waves-effect waves-light m-r-10" [disabled]="profileForm.pristine || !profileForm.valid">
+                      <i class="fa fa-save"></i>
+                      Guardar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-body" align="center">
+                <form ngNativeValidate [formGroup]="profileForm" (ngSubmit)="save(profileForm.value)" class="form p-t-20">
+                    <h4 class="card-title">Fotografía del usuario</h4>
+                    <h6 class="card-subtitle"> nombre usuario </h6>
+                    <img class="img-thumbnail rounded-circle w150" [src]="user.image | imagen " alt="user" />
+                    <!-- <img *ngIf="!imagenTemp" [src]="usuario.img | imagen" class="w150"> -->
+                    <!-- <img *ngIf="imagenTemp" [src]="imagenTemp" class="w150"> -->
+
+                    <input (change)="seleccionImage($event.target.files[0])" type="file">
+
+                    <br><br>
+                    <!-- <button (click)="cambiarImagen()" [disabled]="!imagenSubir" type="button" class="btn btn-block btn-success waves-effect waves-light m-r-10">
+                    <i class="fa fa-save"></i>
+                    Actualizar Foto
+                  </button> -->
+                    <button [disabled]="profileForm.pristine || profileForm.invalid" type="button" class="btn btn-block btn-success waves-effect waves-light m-r-10">
+                    <i class="fa fa-save"></i>
+                    Actualizar Foto
+                  </button></form>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<!--1 386831 584<div class="content-heading">File Upload</div>
+<div class="row">
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="page-header mt0">Select files</h4>
+
+                <p class="text-bold">Upload options</p>
+                <label for="file1" class="file-upload">
+                    <button class="btn btn-primary btn-block">Multiple</button>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-9" style="margin-bottom: 40px">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="page-header mt0">Upload queue</h4>
+            </div>
+        </div>
+    </div>
+</div>
+<p><small>See implementation details <a href="http://valor-software.com/ng2-file-upload/">here</a></small></p> -->a

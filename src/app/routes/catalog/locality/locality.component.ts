@@ -1,0 +1,176 @@
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { NgForm } from '@angular/forms';
+
+import { Router, ActivatedRoute } from '@angular/router';
+import { DatatableComponent } from '@swimlane/ngx-datatable';
+import { Page } from '@app/_models';
+import { Locality } from './locality.model';
+import { DepartmentService } from '../departament';
+import { LocalityService } from './locality.service';
+import { Department } from '../departament';
+import { ProvinceService } from '../province';
+@Component({
+  selector: 'app-locality',
+  templateUrl: './locality.component.html',
+  styleUrls: ['./locality.component.scss'],
+  encapsulation: ViewEncapsulation.None
+})
+export class LocalityComponent implements OnInit {
+  page = new Page();
+  localities: Locality[] = [];
+  display = 'none';
+  locality: Locality;
+  id: any;
+  depatmentid: number;
+  rows = [];
+  temp = [];
+  title = 'CREAR';
+  provinceId: string;
+  department: Department;
+  @ViewChild(DatatableComponent) table: DatatableComponent;
+  constructor(
+    public depService: DepartmentService,
+    public provService: ProvinceService,
+    public localityService: LocalityService,
+    public routeActivate: ActivatedRoute,
+    public router: Router,
+    public modalService: NgbModal
+  ) {
+    this.page.limit = 10;
+    this.routeActivate.params.subscribe(param => {
+      this.id = param['id'];
+      this.provinceId = param['provinceId'];
+      this.depatmentid = this.id;
+      if (this.id) {
+        this.getLocalitys();
+        this.setPage({ offset: 0 });
+      }
+    });
+  }
+
+  ngOnInit() {
+    this.setPage({ offset: 0 });
+    this.locality = new Locality(null, this.depatmentid, 0);
+  }
+  add() {
+    const date = new Date();
+    this.display = 'block';
+    this.locality = new Locality(null, 0);
+  }
+  edit(locality: Locality) {
+    this.locality = locality;
+  }
+  save(form?: NgForm) {
+    if (form.value.id !== '0') {
+      form.value.name = form.value.name.toUpperCase();
+      this.localityService.update(form.value.id, form.value).subscribe(res => {
+        this.resetForm(form);
+        this.getLocalitys();
+        this.modalService.dismissAll();
+      });
+    } else {
+      form.value.name = form.value.name.toUpperCase();
+      this.localityService.save(form.value).subscribe(res => {
+        this.resetForm(form);
+        this.getLocalitys();
+        this.modalService.dismissAll();
+      });
+    }
+  }
+  getLocalitys() {
+    this.localityService
+      .listByDepertment(this.depatmentid)
+      .subscribe((resp: any) => {
+        this.rows = resp.data[0].localities;
+        this.locality = resp.data[0];
+        this.department = resp.data[0];
+        this.localities = resp.data[0].localities;
+      });
+  }
+  close() {
+    this.display = 'none';
+  }
+
+  editbyid(content, id: number) {
+    this.title = 'EDITAR';
+    this.locality = new Locality(null, this.depatmentid, 0);
+    if (id) {
+      this.localityService
+        .findOne(id)
+        .subscribe((resp: any) => {
+          this.locality = resp.data;
+          this.modalService
+              .open(content)
+              .result.then();
+        });
+    }
+  }
+  resetForm(form?: NgForm) {
+    if (form) {
+      form.reset();
+      // this.getUsers();
+    }
+  }
+  open(content, id: number) {
+    this.title = 'AGREGAR';
+    this.locality = new Locality(null, this.depatmentid, 0);
+    if (id) {
+      this.localityService.findOne(id)
+        .subscribe((resp: any) => (this.locality = resp.data));
+    }
+    this.modalService
+      .open(content, {
+        ariaLabelledBy: 'modal-basic-title',
+        backdropClass: 'light-blue-backdrop'
+      })
+      .result.then(result => {}, reason => {});
+  }
+  CloseModal(data: string, form?: NgForm) {
+    // this.modalService.dismissAll(this.CloseModal);
+  }
+  departaments() {
+    this.router.navigate(['catalog/department', this.provinceId]);
+  }
+  setPage(pageInfo) {
+    this.page.numberPage = pageInfo.offset + 1;
+    this.localityService
+      .listByDepertment(this.depatmentid)
+      .subscribe((resp: any) => {
+        this.temp = resp.data.entities;
+        this.page = resp.data;
+        this.locality = resp.data[0];
+        this.department = resp.data[0];
+        this.rows = resp.data[0].localities;
+      });
+  }
+  search(event) {
+    const val = event.target.value.toLowerCase();
+    const temp = this.temp.filter(function(d) {
+      return d.name.toLowerCase().indexOf(val) !== -1 || !val;
+    });
+    this.rows = temp;
+    this.table.offset = 0;
+  }
+  confirm(pdelete, id: any) {
+    this.title = 'ELIMINAR';
+    this.locality = new Locality('', 0);
+    if (id) {
+      this.localityService.findOne(id).subscribe((resp: any) => {
+        this.locality = resp.data;
+      });
+    }
+    this.modalService
+      .open(pdelete, {
+        ariaLabelledBy: 'modal-basic-title',
+        backdropClass: 'light-blue-backdrop'
+      })
+      .result.then(() => {}, () => {});
+  }
+  delete(pdelete, id: number) {
+    this.localityService.delete(id).subscribe((resp: any) => {
+      this.setPage({ offset: 0 });
+    });
+    this.modalService.dismissAll(pdelete);
+  }
+}
